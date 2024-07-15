@@ -394,7 +394,7 @@ proxy:
     #   - kong-proxy-other.example.com
 
   # Optionally specify a static load balancer IP.
-  loadBalancerIP: 192.168.1.240-192.168.1.250
+  loadBalancerIP: 192.168.1.240
 
 # Specify Kong UDP proxy service configuration
 # Currently, LoadBalancer type Services are generally limited to a single transport protocol
@@ -529,7 +529,7 @@ dblessConfig:
 # created in k8s. It uses CRDs for more fine grained control over routing and
 # for Kong specific configuration.
 ingressController:
-  installCRDs: false
+  installCRDs: true
   enabled: true
   image:
     repository: kong/kubernetes-ingress-controller
