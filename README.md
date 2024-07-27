@@ -10,7 +10,14 @@ This chart bootstraps all the components needed to run Kong on a
 
 ## User Notes
 I have added a gateway-only-values.yaml file, which contains the gateway values settings from the kong chart
-The command provided installs Kong in a Kubernetes cluster using Helm, with specific configurations. Here’s a detailed explanation of each part of the command:
+The command provided installs Kong in a Kubernetes cluster using Helm, with specific configurations. 
+
+To apply use the following install command
+```bash
+helm install kong . --namespace kong -f gateway-only-values.yaml
+```
+
+Here’s a detailed explanation of each part of the command:
 
 ```bash
 helm install kong kong/kong \
@@ -64,12 +71,6 @@ This command sets up Kong in a Kubernetes cluster with the following configurati
 - Enables Kong Manager and sets up an Ingress resource for it, accessible at `kong-manager.local`.
 
 This setup ensures that Kong is managed internally within the cluster, reducing the attack surface by exposing only the necessary components through the Ingress controller.
-
-
-To apply use the following install command
-```bash
-helm install kong . --namespace kong -f gateway-only-values.yaml
-```
 
 ## TL;DR;
 
