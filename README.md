@@ -8,6 +8,69 @@ This chart bootstraps all the components needed to run Kong on a
 [Kubernetes](http://kubernetes.io) cluster using the
 [Helm](https://helm.sh) package manager.
 
+## User Notes
+I have added a gateway-only-values.yaml file, which contains the gateway values settings from the kong chart
+The command provided installs Kong in a Kubernetes cluster using Helm, with specific configurations. Here’s a detailed explanation of each part of the command:
+
+```bash
+helm install kong kong/kong \
+  --namespace kong \
+  --set ingressController.installCRDs=false \
+  --set service.type=ClusterIP \
+  --set admin.enabled=true \
+  --set admin.http.enabled=true \
+  --set manager.enabled=true \
+  --set manager.ingress.enabled=true \
+  --set manager.ingress.hostname=kong-manager.local
+```
+
+### Breakdown of the Command
+
+1. **`helm install kong kong/kong`**:
+   - **`helm install`**: This Helm command installs a Helm chart.
+   - **`kong`**: This is the release name for the installation.
+   - **`kong/kong`**: This specifies the Helm chart to install, in this case, the Kong chart from the Kong repository.
+
+2. **`--namespace kong`**:
+   - This flag specifies the namespace in Kubernetes where Kong will be installed. If the namespace does not exist, it will need to be created beforehand.
+
+3. **`--set ingressController.installCRDs=false`**:
+   - This sets the value of `ingressController.installCRDs` to `false`, meaning the Custom Resource Definitions (CRDs) for Kong's Ingress Controller will not be installed. This is useful if the CRDs are already installed or managed separately.
+
+4. **`--set service.type=ClusterIP`**:
+   - This sets the service type for Kong to `ClusterIP`, making the Kong service internal to the Kubernetes cluster. It will not be exposed externally.
+
+5. **`--set admin.enabled=true`**:
+   - This enables the Admin API for Kong, which is necessary for managing Kong via the Admin API.
+
+6. **`--set admin.http.enabled=true`**:
+   - This enables the Admin API over HTTP. This makes the Admin API accessible over HTTP, which is useful for management and configuration tasks.
+
+7. **`--set manager.enabled=true`**:
+   - This enables Kong Manager, the graphical user interface for managing Kong.
+
+8. **`--set manager.ingress.enabled=true`**:
+   - This enables an Ingress resource for Kong Manager, allowing it to be accessed through the Ingress controller.
+
+9. **`--set manager.ingress.hostname=kong-manager.local`**:
+   - This sets the hostname for the Kong Manager Ingress. You will need to ensure that `kong-manager.local` resolves to the IP address of your Ingress controller, typically by adding an entry to your `/etc/hosts` file or configuring your DNS appropriately.
+
+### Summary
+This command sets up Kong in a Kubernetes cluster with the following configurations:
+- Installs Kong in the `kong` namespace.
+- Disables the installation of CRDs for the Ingress controller.
+- Configures the Kong service to be of type `ClusterIP`, making it internal.
+- Enables the Admin API over HTTP.
+- Enables Kong Manager and sets up an Ingress resource for it, accessible at `kong-manager.local`.
+
+This setup ensures that Kong is managed internally within the cluster, reducing the attack surface by exposing only the necessary components through the Ingress controller.
+
+
+To apply use the following install command
+```bash
+helm install kong . --namespace kong -f gateway-only-values.yaml
+```
+
 ## TL;DR;
 
 ```bash
