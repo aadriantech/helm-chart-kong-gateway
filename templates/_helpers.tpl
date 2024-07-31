@@ -211,7 +211,7 @@ spec:
   {{- if .http }}
   {{- if .http.enabled }}
   {{- if ne ( .http.servicePort | toString ) "0" }}
-  - name: kong-{{ .serviceName }}
+  - name: {{ .fullName }}-{{ .serviceName }}
     port: {{ .http.servicePort }}
     targetPort: {{ .http.containerPort }}
   {{- if .http.appProtocol }}

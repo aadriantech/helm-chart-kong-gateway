@@ -1,0 +1,151 @@
+# ------------------------------
+# @Adrian Notes: This values Configuration is for Kong Ingress Controller
+# ------------------------------
+nameOverride: gateway
+
+# Deployment parameters
+deployment:
+  kong:
+    enabled: true
+  serviceAccount:
+    create: true
+    automountServiceAccountToken: false
+
+# Kong parameters
+env:
+  database: "off"
+  router_flavor: "traditional"
+  nginx_worker_processes: "2"
+  proxy_access_log: /dev/stdout
+  admin_access_log: /dev/stdout
+  admin_gui_access_log: /dev/stdout
+  portal_api_access_log: /dev/stdout
+  proxy_error_log: /dev/stderr
+  admin_error_log: /dev/stderr
+  admin_gui_error_log: /dev/stderr
+  portal_api_error_log: /dev/stderr
+  prefix: /kong_prefix/
+  admin_gui_path: /manager
+  admin_gui_url: http://localhost:8002/manager
+
+
+image:
+  repository: kong
+  tag: "3.6"
+  pullPolicy: IfNotPresent
+
+admin:
+  enabled: true
+  type: ClusterIP
+  http:
+    enabled: false
+    servicePort: 8001
+    containerPort: 8001
+  tls:
+    enabled: true
+    servicePort: 8444
+    containerPort: 8444
+    parameters: [http2]
+
+status:
+  enabled: true
+  http:
+    enabled: true
+    containerPort: 8100
+  tls:
+    enabled: false
+
+proxy:
+  enabled: true
+  type: ClusterIP  
+  nameOverride: "gateway"
+  annotations: {}
+  labels:
+    enable-metrics: "true"
+  http:
+    enabled: true
+    servicePort: 8000
+    containerPort: 8000
+  tls:
+    enabled: false
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations: {}
+    labels: {}
+    hostname: localhost  # Replace with your desired hostname
+    path: /
+    pathType: Prefix
+
+# Disabling Ingress Controller parameters since we are using Traefik
+ingressController:
+  enabled: true
+  installCRDs: false
+
+# Postgres sub-chart parameters
+postgresql:
+  enabled: false
+
+# Miscellaneous parameters
+waitImage:
+  enabled: true
+  pullPolicy: IfNotPresent
+
+readinessProbe:
+  httpGet:
+    path: "/status/ready"
+    port: status
+    scheme: HTTP
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet:
+    path: "/status"
+    port: status
+    scheme: HTTP
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+  periodSeconds: 10
+  successThreshold: 1
+  failureThreshold: 3
+
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - kong
+        - quit
+        - '--wait=15'
+
+terminationGracePeriodSeconds: 30
+
+replicaCount: 1
+
+# Security context
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  runAsUser: 1000
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL
+
+# Kong DB-less configuration
+dblessConfig:
+  config: |
+    _format_version: "2.1"
+    services:
+    - name: example-service
+      url: http://httpbin.org
+      routes:
+      - name: example-route
+        paths:
+        - /
+
